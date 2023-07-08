@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://dnol75tx5de6u"]
+
+[ext_resource type="Texture2D" uid="uid://bur8mfwteexsw" path="res://Sprites/Wall.png" id="1_3vbec"]
+
+[node name="Wall" type="Sprite2D"]
+texture_filter = 1
+texture = ExtResource("1_3vbec")
+centered = false

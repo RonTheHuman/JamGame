@@ -4,5 +4,5 @@
 
 [node name="Crate" type="Sprite2D"]
 texture_filter = 1
-position = Vector2(544, 355)
 texture = ExtResource("1_xonwl")
+centered = false

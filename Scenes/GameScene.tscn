@@ -1,10 +1,10 @@
-[gd_scene load_steps=3 format=3 uid="uid://cweuj0kjiio3x"]
+[gd_scene load_steps=3 format=3 uid="uid://bx5wq5lvboutl"]
 
-[ext_resource type="Script" path="res://Scenes/GameScene.gd" id="1_puoy0"]
+[ext_resource type="Script" path="res://Scripts/GameScene.gd" id="1_r2l5w"]
 [ext_resource type="PackedScene" uid="uid://s5j7yl4s0i2b" path="res://Scenes/GridTile.tscn" id="2_0oo2o"]
 
 [node name="GameScene" type="Node2D"]
 texture_filter = 1
-script = ExtResource("1_puoy0")
+script = ExtResource("1_r2l5w")
 
 [node name="GridTile" parent="." instance=ExtResource("2_0oo2o")]

@@ -3,5 +3,5 @@
 [ext_resource type="Texture2D" uid="uid://5ai5k3leiwpt" path="res://Sprites/Player.png" id="1_7aqtr"]
 
 [node name="Player" type="Sprite2D"]
-position = Vector2(481, 547)
 texture = ExtResource("1_7aqtr")
+centered = false

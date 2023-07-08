@@ -1,8 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://55hic8b5mtrw"]
-
-[ext_resource type="Texture2D" uid="uid://00b7rmic6jj5" path="res://Sprites/Button.png" id="1_g1be1"]
-
-[node name="Button" type="Sprite2D"]
-texture_filter = 1
-position = Vector2(544, 225)
-texture = ExtResource("1_g1be1")
