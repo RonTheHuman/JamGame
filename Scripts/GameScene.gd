@@ -21,6 +21,8 @@ var layer2 := [[0, 0, 0, 0, 0],
 			   [0, 2, 0, 0, 0],
 			   [0, 0, 0, 0, 0],
 			   [0, 0, 0, 0, 0]]
+var layer1_history = []
+var layer2_history = []
 var level_w: int = len(layer1[0])
 var level_h: int = len(layer1)
 var player_loc: Vector2
@@ -28,8 +30,7 @@ var sensor_loc_arr: Array[Vector2]
 var tile_size: int = 64
 var grid_start := Vector2(0, 0)
 
-func _ready():
-	var found = false 
+func _ready(): 
 	for i in range(level_h):
 		for j in range(level_w):
 			if layer2[i][j] == Tile.PLAYER:
@@ -53,7 +54,20 @@ func _input(event):
 		next_state(Action.LEFT)
 	if event.is_action_pressed("Wait"):
 		next_state(Action.WAIT)
-	draw_state()
+	if event.is_action_pressed("Undo"):
+		if layer1_history != [] and layer2_history != []:
+			layer1 = layer1_history.pop_back()
+			layer2 = layer2_history.pop_back()
+			player_loc = find_player()
+			print(layer2_history)
+		draw_state()
+
+func find_player():
+	for i in range(level_h):
+		for j in range(level_w):
+			if layer2[i][j] == Tile.PLAYER:
+				return Vector2(j, i)
+	return null
 
 func is_blocked(location: Vector2) -> bool:
 	if location.x < 0 or location.x >= level_w or \
@@ -69,6 +83,8 @@ func is_solved():
 	return true
 
 func next_state(action: Action):
+	layer1_history.append(layer1.duplicate(true))
+	layer2_history.append(layer2.duplicate(true))
 	if action == Action.WAIT:
 		return
 	var move_vec = Vector2(0, 0)
@@ -100,9 +116,9 @@ func next_state(action: Action):
 		layer2[player_loc.y][player_loc.x] = Tile.NONE
 		player_loc = new_loc
 		layer2[player_loc.y][player_loc.x] = Tile.PLAYER
-	
 	if is_solved():
 		print("solved!")
+	draw_state()
 
 func draw_state():
 	for child in $GridTile.get_children():
