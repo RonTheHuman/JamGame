@@ -7,4 +7,10 @@
 texture_filter = 1
 script = ExtResource("1_r2l5w")
 
+[node name="Background" type="Polygon2D" parent="."]
+color = Color(0.129412, 0.129412, 0.137255, 1)
+polygon = PackedVector2Array(-561, -564, 1702, -562, 1668, 1148, -610, 1158)
+
 [node name="GridTile" parent="." instance=ExtResource("2_0oo2o")]
+
+[node name="Camera2D" type="Camera2D" parent="."]

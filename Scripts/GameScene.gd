@@ -13,12 +13,12 @@ var tile_to_scn := { Tile.PLAYER: player_scn, Tile.BOX: box_scn,
 
 var layer1 := [[0, 0, 0, 0, 0],
 			   [0, 0, 0, 0, 4],
-			   [0, 3, 3, 3, 3],
+			   [0, 0, 3, 3, 3],
 			   [0, 0, 0, 0, 0],
-			   [0, 0, 0, 0, 0]] 
+			   [0, 0, 0, 0, 4]] 
 var layer2 := [[0, 0, 0, 0, 0],
 			   [0, 1, 0, 2, 0],
-			   [0, 0, 0, 0, 0],
+			   [0, 2, 0, 0, 0],
 			   [0, 0, 0, 0, 0],
 			   [0, 0, 0, 0, 0]]
 var level_w: int = len(layer1[0])
@@ -39,6 +39,7 @@ func _ready():
 			break
 	$GridTile.region_rect = Rect2(grid_start, 
 				tile_size * Vector2(level_w, level_h))
+	$Camera2D.position = grid_start + (tile_size / 2) * Vector2(level_w, level_h)
 	draw_state()
 
 func _input(event):
@@ -52,6 +53,15 @@ func _input(event):
 		next_state(Action.LEFT)
 	if event.is_action_pressed("Wait"):
 		next_state(Action.WAIT)
+	draw_state()
+
+func is_blocked(location: Vector2) -> bool:
+	if location.x < 0 or location.x >= level_w or \
+			location.y < 0 or location.y >= level_h or \
+				layer1[location.y][location.x] == Tile.WALL:
+		return true
+	return false
+	
 
 func next_state(action: Action):
 	if action == Action.WAIT:
@@ -66,21 +76,25 @@ func next_state(action: Action):
 	if action == Action.LEFT:
 		move_vec = Vector2(-1, 0)
 	var new_loc = player_loc + move_vec
-	print(new_loc)
-	# if out of bounds
-	if new_loc.x < 0 or new_loc.x >= level_w or \
-			new_loc.y < 0 or new_loc.y >= level_h:
-			return
-	# if moving into wall
-	if layer1[new_loc.y][new_loc.x] == Tile.WALL:
+	if is_blocked(new_loc):
 		return
-	# if moving into empty
-	if layer1[new_loc.y][new_loc.x] == Tile.NONE:
+	# if moving into box
+	if layer2[new_loc.y][new_loc.x] == Tile.BOX:
+		var new_box_loc = new_loc + move_vec
+		if is_blocked(new_box_loc):
+			return
+		if layer2[new_box_loc.y][new_box_loc.x] == Tile.BOX: # no multipush (yet)
+			return
 		layer2[player_loc.y][player_loc.x] = Tile.NONE
 		player_loc = new_loc
 		layer2[player_loc.y][player_loc.x] = Tile.PLAYER
-	draw_state()
-	
+		layer2[new_box_loc.y][new_box_loc.x] = Tile.BOX
+	# if moving into empty
+	if layer1[new_loc.y][new_loc.x] == Tile.NONE or \
+				layer1[new_loc.y][new_loc.x] == Tile.SENSOR:
+		layer2[player_loc.y][player_loc.x] = Tile.NONE
+		player_loc = new_loc
+		layer2[player_loc.y][player_loc.x] = Tile.PLAYER
 
 func draw_state():
 	for child in $GridTile.get_children():
