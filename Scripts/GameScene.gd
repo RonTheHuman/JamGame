@@ -61,6 +61,22 @@ func _input(event):
 			player_loc = find_player()
 			print(layer2_history)
 		draw_state()
+	
+	var mouse_grid_pos = \
+		((get_global_mouse_position() - grid_start) / tile_size).floor()
+	if mouse_grid_pos.x >= 0 and mouse_grid_pos.x < level_w \
+			and mouse_grid_pos.y >= 0 and mouse_grid_pos.y < level_h:
+		$Highlight.position = grid_start + mouse_grid_pos * tile_size
+		$Highlight.visible = true
+	else:
+		$Highlight.visible = false
+
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+			if layer2[mouse_grid_pos.y][mouse_grid_pos.x] != Tile.PLAYER:
+				layer1[mouse_grid_pos.y][mouse_grid_pos.x] = Tile.NONE
+				layer2[mouse_grid_pos.y][mouse_grid_pos.x] = Tile.NONE
+		draw_state()
 
 func find_player():
 	for i in range(level_h):

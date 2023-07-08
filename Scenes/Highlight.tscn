@@ -1,0 +1,5 @@
+[gd_scene format=3 uid="uid://resrlwxamh5s"]
+
+[node name="Highlight" type="Polygon2D"]
+modulate = Color(1, 0.85098, 1, 0.294118)
+polygon = PackedVector2Array(0, 0, 64, 0, 64, 64, 0, 64)

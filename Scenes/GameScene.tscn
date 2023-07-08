@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://bx5wq5lvboutl"]
+[gd_scene load_steps=4 format=3 uid="uid://bx5wq5lvboutl"]
 
 [ext_resource type="Script" path="res://Scripts/GameScene.gd" id="1_r2l5w"]
 [ext_resource type="PackedScene" uid="uid://s5j7yl4s0i2b" path="res://Scenes/GridTile.tscn" id="2_0oo2o"]
+[ext_resource type="PackedScene" uid="uid://resrlwxamh5s" path="res://Scenes/Highlight.tscn" id="3_euyio"]
 
 [node name="GameScene" type="Node2D"]
 texture_filter = 1
@@ -14,3 +15,5 @@ polygon = PackedVector2Array(-561, -564, 1702, -562, 1668, 1148, -610, 1158)
 [node name="GridTile" parent="." instance=ExtResource("2_0oo2o")]
 
 [node name="Camera2D" type="Camera2D" parent="."]
+
+[node name="Highlight" parent="." instance=ExtResource("3_euyio")]
