@@ -23,14 +23,17 @@ var layer2 := [[0, 0, 0, 0, 0],
 			   [0, 2, 0, 0, 0],
 			   [0, 0, 0, 0, 0],
 			   [0, 0, 0, 0, 0]]
-var layer1_history = []
-var layer2_history = []
+var layer1_history_for_undo = []
+var layer2_history_for_undo = []
 var level_w: int = len(layer1[0])
 var level_h: int = len(layer1)
 var player_loc: Vector2
 var sensor_loc_arr: Array[Vector2]
 var tile_size: int = 64
 var grid_start := Vector2(0, 0)
+
+var interactable = false
+var action_arr = [Action.RIGHT, Action.RIGHT, Action.LEFT, Action.UP]
 
 func _ready(): 
 	for i in range(level_h):
@@ -43,26 +46,45 @@ func _ready():
 	$GridTile.region_rect = Rect2(grid_start, 
 				tile_size * Vector2(level_w, level_h))
 	$Camera2D.position = grid_start + (tile_size / 2) * Vector2(level_w, level_h)
-	draw_state()
+	draw_state(layer1, layer2)
+
+func apply_actions(actions: Array, layer1_history: Array, layer2_history: Array) -> void:
+	for action in actions:
+		next_state(action, false)
+		layer1_history.append(layer1.duplicate(true))
+		layer2_history.append(layer2.duplicate(true))
+	layer1 = layer1_history[0]
+	layer2 = layer2_history[0]
+	find_player()
+
+func get_action_results():
+	if not interactable:
+		var layer1_history = [layer1.duplicate(true)]
+		var layer2_history = [layer2.duplicate(true)]
+		apply_actions(action_arr, layer1_history, layer2_history)
+		for i in range(len(layer1_history)):
+			await get_tree().create_timer(0.7).timeout
+			draw_state(layer1_history[i], layer2_history[i])
 
 func _input(event):
-	if event.is_action_pressed("Up"):
-		next_state(Action.UP)
-	if event.is_action_pressed("Right"):
-		next_state(Action.RIGHT)
-	if event.is_action_pressed("Down"):
-		next_state(Action.DOWN)
-	if event.is_action_pressed("Left"):
-		next_state(Action.LEFT)
-	if event.is_action_pressed("Wait"):
-		next_state(Action.WAIT)
-	if event.is_action_pressed("Undo"):
-		if layer1_history != [] and layer2_history != []:
-			layer1 = layer1_history.pop_back()
-			layer2 = layer2_history.pop_back()
-			player_loc = find_player()
-			print(layer2_history)
-		draw_state()
+	if interactable:
+		if event.is_action_pressed("Up"):
+			next_state(Action.UP)
+		if event.is_action_pressed("Right"):
+			next_state(Action.RIGHT)
+		if event.is_action_pressed("Down"):
+			next_state(Action.DOWN)
+		if event.is_action_pressed("Left"):
+			next_state(Action.LEFT)
+		if event.is_action_pressed("Wait"):
+			next_state(Action.WAIT)
+		if event.is_action_pressed("Undo"):
+			if layer1_history_for_undo != [] and layer2_history_for_undo != []:
+				layer1 = layer1_history_for_undo.pop_back()
+				layer2 = layer2_history_for_undo.pop_back()
+				player_loc = find_player()
+				print(layer2_history_for_undo)
+			draw_state(layer1, layer2)
 	
 	var mouse_grid_pos = \
 		((get_global_mouse_position() - grid_start) / tile_size).floor()
@@ -85,6 +107,8 @@ func _input(event):
 					if layer2[mouse_grid_pos.y][mouse_grid_pos.x] != Tile.PLAYER:
 						layer1[mouse_grid_pos.y][mouse_grid_pos.x] = Tile.NONE
 						layer2[mouse_grid_pos.y][mouse_grid_pos.x] = Tile.NONE
+						get_action_results()
+
 			elif event.button_index == MOUSE_BUTTON_LEFT:
 				if mouse_in_grid.call():
 					if layer2[mouse_grid_pos.y][mouse_grid_pos.x] != Tile.PLAYER:
@@ -95,7 +119,8 @@ func _input(event):
 						elif selected_tile in layer2_tiles:
 							layer2[mouse_grid_pos.y][mouse_grid_pos.x] = selected_tile
 							layer1[mouse_grid_pos.y][mouse_grid_pos.x] = Tile.NONE
-			draw_state()
+						get_action_results()
+			draw_state(layer1, layer2)
 
 func find_player():
 	for i in range(level_h):
@@ -117,9 +142,10 @@ func is_solved():
 			return false
 	return true
 
-func next_state(action: Action):
-	layer1_history.append(layer1.duplicate(true))
-	layer2_history.append(layer2.duplicate(true))
+func next_state(action: Action, draw: bool = true):
+	if interactable:
+		layer1_history_for_undo.append(layer1.duplicate(true))
+		layer2_history_for_undo.append(layer2.duplicate(true))
 	if action == Action.WAIT:
 		return
 	var move_vec = Vector2(0, 0)
@@ -153,9 +179,10 @@ func next_state(action: Action):
 		layer2[player_loc.y][player_loc.x] = Tile.PLAYER
 	if is_solved():
 		print("solved!")
-	draw_state()
+	if draw:
+		draw_state(layer1, layer2)
 
-func draw_state():
+func draw_state(layer1, layer2):
 	for child in $GridTile.get_children():
 		child.queue_free()
 	for i in range(level_h):
