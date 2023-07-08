@@ -24,6 +24,7 @@ var layer2 := [[0, 0, 0, 0, 0],
 var level_w: int = len(layer1[0])
 var level_h: int = len(layer1)
 var player_loc: Vector2
+var sensor_loc_arr: Array[Vector2]
 var tile_size: int = 64
 var grid_start := Vector2(0, 0)
 
@@ -33,10 +34,9 @@ func _ready():
 		for j in range(level_w):
 			if layer2[i][j] == Tile.PLAYER:
 				player_loc = Vector2(j, i)
-				found = true
-				break
-		if found:
-			break
+			if layer1[i][j] == Tile.SENSOR:
+				sensor_loc_arr.append(Vector2(j, i))
+			
 	$GridTile.region_rect = Rect2(grid_start, 
 				tile_size * Vector2(level_w, level_h))
 	$Camera2D.position = grid_start + (tile_size / 2) * Vector2(level_w, level_h)
@@ -61,7 +61,12 @@ func is_blocked(location: Vector2) -> bool:
 				layer1[location.y][location.x] == Tile.WALL:
 		return true
 	return false
-	
+
+func is_solved():
+	for sensor_loc in sensor_loc_arr:
+		if layer2[sensor_loc.y][sensor_loc.x] != Tile.BOX:
+			return false
+	return true
 
 func next_state(action: Action):
 	if action == Action.WAIT:
@@ -95,6 +100,9 @@ func next_state(action: Action):
 		layer2[player_loc.y][player_loc.x] = Tile.NONE
 		player_loc = new_loc
 		layer2[player_loc.y][player_loc.x] = Tile.PLAYER
+	
+	if is_solved():
+		print("solved!")
 
 func draw_state():
 	for child in $GridTile.get_children():
