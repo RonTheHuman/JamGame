@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://dtu41uytv6tk2"]
+
+[ext_resource type="Texture2D" uid="uid://bm4s48ju0bh54" path="res://Sprites/Box.png" id="1_xonwl"]
+
+[node name="Crate" type="Sprite2D"]
+texture_filter = 1
+position = Vector2(544, 355)
+texture = ExtResource("1_xonwl")

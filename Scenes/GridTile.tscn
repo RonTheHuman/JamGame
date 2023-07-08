@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://s5j7yl4s0i2b"]
+
+[ext_resource type="Texture2D" uid="uid://gugerm7eot8j" path="res://Sprites/GridTile.png" id="1_mr0dl"]
+
+[node name="GridTile" type="Sprite2D"]
+texture_filter = 1
+texture_repeat = 2
+texture = ExtResource("1_mr0dl")
+centered = false
+region_enabled = true
+region_rect = Rect2(0, 0, 1280, 750)
