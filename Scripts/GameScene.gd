@@ -7,6 +7,8 @@ var sensor_scn = preload("res://Scenes/Sensor.tscn")
 
 enum Tile { NONE = 0, PLAYER = 1, BOX = 2, WALL = 3, SENSOR = 4}
 enum Action { UP, RIGHT, DOWN, LEFT, WAIT }
+var layer1_tiles = [Tile.SENSOR, Tile.WALL]
+var layer2_tiles = [Tile.PLAYER, Tile.BOX]
 
 var tile_to_scn := { Tile.PLAYER: player_scn, Tile.BOX: box_scn, 
 					Tile.WALL: wall_scn, Tile.SENSOR: sensor_scn }
@@ -64,19 +66,36 @@ func _input(event):
 	
 	var mouse_grid_pos = \
 		((get_global_mouse_position() - grid_start) / tile_size).floor()
-	if mouse_grid_pos.x >= 0 and mouse_grid_pos.x < level_w \
-			and mouse_grid_pos.y >= 0 and mouse_grid_pos.y < level_h:
+	
+	var mouse_in_grid = \
+		func ():
+			return mouse_grid_pos.x >= 0 and mouse_grid_pos.x < level_w \
+				and mouse_grid_pos.y >= 0 and mouse_grid_pos.y < level_h
+			
+	if mouse_in_grid.call():
 		$Highlight.position = grid_start + mouse_grid_pos * tile_size
 		$Highlight.visible = true
 	else:
 		$Highlight.visible = false
 
 	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
-			if layer2[mouse_grid_pos.y][mouse_grid_pos.x] != Tile.PLAYER:
-				layer1[mouse_grid_pos.y][mouse_grid_pos.x] = Tile.NONE
-				layer2[mouse_grid_pos.y][mouse_grid_pos.x] = Tile.NONE
-		draw_state()
+		if event.pressed:
+			if event.button_index == MOUSE_BUTTON_RIGHT:
+				if mouse_in_grid.call():
+					if layer2[mouse_grid_pos.y][mouse_grid_pos.x] != Tile.PLAYER:
+						layer1[mouse_grid_pos.y][mouse_grid_pos.x] = Tile.NONE
+						layer2[mouse_grid_pos.y][mouse_grid_pos.x] = Tile.NONE
+			elif event.button_index == MOUSE_BUTTON_LEFT:
+				if mouse_in_grid.call():
+					if layer2[mouse_grid_pos.y][mouse_grid_pos.x] != Tile.PLAYER:
+						var selected_tile = $CanvasLayer/TileEditorUI.selected_tile
+						if selected_tile in layer1_tiles:
+							layer1[mouse_grid_pos.y][mouse_grid_pos.x] = selected_tile
+							layer2[mouse_grid_pos.y][mouse_grid_pos.x] = Tile.NONE
+						elif selected_tile in layer2_tiles:
+							layer2[mouse_grid_pos.y][mouse_grid_pos.x] = selected_tile
+							layer1[mouse_grid_pos.y][mouse_grid_pos.x] = Tile.NONE
+			draw_state()
 
 func find_player():
 	for i in range(level_h):
