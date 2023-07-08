@@ -37,7 +37,9 @@ func _ready():
 				break
 		if found:
 			break
-	print(player_loc)
+	$GridTile.region_rect = Rect2(grid_start, 
+				tile_size * Vector2(level_w, level_h))
+	draw_state()
 
 func _input(event):
 	if event.is_action_pressed("Up"):
@@ -53,7 +55,7 @@ func _input(event):
 
 func next_state(action: Action):
 	if action == Action.WAIT:
-		pass
+		return
 	var move_vec = Vector2(0, 0)
 	if action == Action.UP:
 		move_vec = Vector2(0, -1)
@@ -68,10 +70,10 @@ func next_state(action: Action):
 	# if out of bounds
 	if new_loc.x < 0 or new_loc.x >= level_w or \
 			new_loc.y < 0 or new_loc.y >= level_h:
-			pass
+			return
 	# if moving into wall
 	if layer1[new_loc.y][new_loc.x] == Tile.WALL:
-		pass
+		return
 	# if moving into empty
 	if layer1[new_loc.y][new_loc.x] == Tile.NONE:
 		layer2[player_loc.y][player_loc.x] = Tile.NONE
